@@ -8,9 +8,13 @@ import com.example.bookstore.logic.remote.services.MovieApiService;
 import com.example.bookstore.model.Movie;
 import com.example.bookstore.model.ResponseMovie;
 
+import org.reactivestreams.Publisher;
+
 import java.util.List;
 
+import io.reactivex.Flowable;
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
 
 public class RemoteDataSourceImpl implements DataSource {
@@ -29,12 +33,25 @@ public class RemoteDataSourceImpl implements DataSource {
         //TODO 레트로핏 연동 / GSON / RxJava
         MovieApiService service = NetRetrofit.getInstance().getRetrofit().create(MovieApiService.class);
         return service.fetchMovies()
+//                .flatMap(new Function<ResponseMovie, SingleSource<?>>() {
+//                    @Override
+//                    public SingleSource<?> apply(ResponseMovie responseMovie) throws Exception {
+//                        List<Movie> list = responseMovie.getData().getMovies();
+//                        return Flowable.fromIterable(list).flatMap(new Function<Movie, Publisher<?>>() {
+//                            @Override
+//                            public Publisher<?> apply(Movie movie) throws Exception {
+//                                return service.fetchMovie(movie.getId());
+//                            }
+//                        });
+//                    }
+//                });
                 .map(new Function<ResponseMovie, List<Movie>>() {
-                    @Override
-                    public List<Movie> apply(ResponseMovie responseMovie) throws Exception {
-                        Log.d(_TAG, "responseMovie " + responseMovie.toString());
-                        return responseMovie.getData().getMovies();
-                    }
-                });
+                         @Override
+                         public List<Movie> apply(ResponseMovie responseMovie) throws Exception {
+                             Log.d(_TAG, "responseMovie " + responseMovie.toString());
+                             return responseMovie.getData().getMovies();
+                         }
+                     }
+                );
     }
 }

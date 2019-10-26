@@ -31,6 +31,8 @@ public class MainActivity extends BaseActivity<MainContract.View, MainContract.P
     MainAdapter adapter;
     List<Movie> movies = new ArrayList<>();
 
+    int startPageNum = 1;
+
     @Override
     protected MainContract.Presenter setPresenter() {
         return new MainPresenter();
@@ -40,7 +42,7 @@ public class MainActivity extends BaseActivity<MainContract.View, MainContract.P
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mPresenter.fetchMovies(1);
+        mPresenter.fetchMovies(startPageNum);
 
         initRecyclerView();
 
@@ -62,9 +64,14 @@ public class MainActivity extends BaseActivity<MainContract.View, MainContract.P
 
     @Override
     public void fetchMoviesDone(List<Movie> list) {
-        progressBar.setVisibility(View.GONE);
+        if(startPageNum == 1)
+            progressBar.setVisibility(View.GONE);
+
         movies.addAll(list);
         Log.d("MainActivity", "list size " + list.size());
         adapter.notifyDataSetChanged();
+
+        if(startPageNum <= 3)
+            mPresenter.fetchMovies(startPageNum++);
     }
 }
